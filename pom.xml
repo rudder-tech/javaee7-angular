@@ -55,7 +55,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[${java.version},1.8.0-5)</version>
+                                    <version>[${java.version},1.8.0_05)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
