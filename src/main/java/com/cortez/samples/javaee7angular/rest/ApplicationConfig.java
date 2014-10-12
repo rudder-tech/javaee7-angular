@@ -3,7 +3,7 @@ package com.cortez.samples.javaee7angular.rest;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@javax.ws.rs.ApplicationPath("rest")
+@javax.ws.rs.ApplicationPath("resources")
 public class ApplicationConfig extends Application {
 
     @Override

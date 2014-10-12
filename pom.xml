@@ -23,6 +23,7 @@
         <version.plugin.war>2.4</version.plugin.war>
         <version.plugin.jgitflow>1.0-m3</version.plugin.jgitflow>
         <version.plugin.jrebel>1.1.5</version.plugin.jrebel>
+        <version.wildfly.maven.plugin>1.0.2.Final</version.wildfly.maven.plugin>
 
         <!-- Dependencies -->
         <version.dependency.javaee>7.0</version.dependency.javaee>
@@ -81,6 +82,82 @@
                 <!--</configuration>-->
             <!--</plugin>-->
 
+            <!-- The JBoss AS plugin deploys your war to a local JBoss AS
+                    container -->
+            <!-- To use, run: mvn package jboss-as:deploy -->
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${version.wildfly.maven.plugin}</version>
+                <executions>
+                    <execution>
+                        <id>deploy-mysql</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>deploy-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>mysql</groupId>
+                            <artifactId>mysql-connector-java</artifactId>
+                            <name>mysql-connector-java.jar</name>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-datasource</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <address>subsystem=datasources</address>
+                            <resources>
+                                <resource>
+                                    <address>data-source=java:jboss/datasources/MySQLDS</address>
+                                    <properties>
+                                        <!--<xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>-->
+                                        <jndi-name>java:jboss/datasources/MySQLDS</jndi-name>
+                                        <enabled>true</enabled>
+                                        <pool-name>MySQLDS</pool-name>
+                                        <use-java-contex>true</use-java-contex>
+                                        <use-ccm>true</use-ccm>
+                                        <connection-url>jdbc:mysql://localhost:3306/javaee7_angular</connection-url>
+                                        <driver-name>mysql-connector-java.jar</driver-name>
+                                        <user-name>javaee7_angular</user-name>
+                                        <password>javaee7_angular</password>
+                                    </properties>
+                                    <!--<resources>-->
+                                        <!--<resource>-->
+                                            <!--<address>xa-datasource-properties=DatabaseName</address>-->
+                                            <!--<properties>-->
+                                                <!--<value>javaee7_angular</value>-->
+                                            <!--</properties>-->
+                                        <!--</resource>-->
+                                        <!--<resource>-->
+                                            <!--<address>xa-datasource-properties=ServerName</address>-->
+                                            <!--<properties>-->
+                                                <!--<value>localhost</value>-->
+                                            <!--</properties>-->
+                                        <!--</resource>-->
+                                        <!--<resource>-->
+                                            <!--<address>xa-datasource-properties=User</address>-->
+                                            <!--<properties>-->
+                                                <!--<value>javaee7_angular</value>-->
+                                            <!--</properties>-->
+                                        <!--</resource>-->
+                                        <!--<resource>-->
+                                            <!--<address>xa-datasource-properties=Password</address>-->
+                                            <!--<properties>-->
+                                                <!--<value>javaee7_angular</value>-->
+                                            <!--</properties>-->
+                                        <!--</resource>-->
+                                    <!--</resources>-->
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.zeroturnaround</groupId>
                 <artifactId>jrebel-maven-plugin</artifactId>
@@ -137,6 +214,13 @@
             <artifactId>swagger-jaxrs_2.10</artifactId>
             <version>1.3.1</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.6</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

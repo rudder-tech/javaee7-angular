@@ -21,7 +21,7 @@ public class SwaggerJaxrsConfig extends HttpServlet {
             super.init(servletConfig);
             SwaggerConfig swaggerConfig = new SwaggerConfig();
             ConfigFactory.setConfig(swaggerConfig);
-            swaggerConfig.setBasePath("http://localhost:8080/swagger4javaee-web/rest");
+            swaggerConfig.setBasePath("http://localhost:8080/javaee7-angular-3.2/resources");
             swaggerConfig.setApiVersion("1.0.0");
             ScannerFactory.setScanner(new DefaultJaxrsScanner());
             ClassReaders.setReader(new DefaultJaxrsApiReader());

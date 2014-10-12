@@ -2,6 +2,10 @@ package com.cortez.samples.javaee7angular.rest;
 
 import com.cortez.samples.javaee7angular.data.Person;
 import com.cortez.samples.javaee7angular.pagination.PaginatedListWrapper;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -10,6 +14,7 @@ import javax.persistence.Query;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -18,10 +23,11 @@ import java.util.List;
  * @author Roberto Cortez
  */
 @Stateless
-@ApplicationPath("/resources")
+//@ApplicationPath("/resources")
 @Path("persons")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/persons", description = "The persons manager")
 public class PersonResource extends Application {
     @PersistenceContext
     private EntityManager entityManager;
@@ -52,7 +58,12 @@ public class PersonResource extends Application {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PaginatedListWrapper listPersons(@DefaultValue("1")
+    @ApiOperation(value = "List all the persons",
+            notes = "Ask for all the persons paginating the results")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PaginatedListWrapper.class),
+            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    public Response listPersons(@DefaultValue("1")
                                             @QueryParam("page")
                                             Integer page,
                                             @DefaultValue("id")
@@ -66,17 +77,28 @@ public class PersonResource extends Application {
         paginatedListWrapper.setSortFields(sortFields);
         paginatedListWrapper.setSortDirections(sortDirections);
         paginatedListWrapper.setPageSize(10);
-        return findPersons(paginatedListWrapper);
+        return Response.status(200).entity(findPersons(paginatedListWrapper)).build();
     }
 
     @GET
-    @Path("{id}")
-    public Person getPerson(@PathParam("id") Long id) {
-        return entityManager.find(Person.class, id);
+    @Path("/{id}")
+    @ApiOperation(value = "Get a person data",
+            notes = "Ask for all the details of a person")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Person.class),
+            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    public Response getPerson(@PathParam("id") Long id) {
+        Person p = entityManager.find(Person.class, id);
+        return Response.status(200).entity(p).build();
     }
 
     @POST
-    public Person savePerson(Person person) {
+    @ApiOperation(value = "Save or Update a person",
+            notes = "Save the person data if no ID is in the entity or update it using the ID")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Person.class),
+            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    public Response savePerson(Person person) {
         if (person.getId() == null) {
             Person personToSave = new Person();
             personToSave.setName(person.getName());
@@ -84,19 +106,26 @@ public class PersonResource extends Application {
             personToSave.setImageUrl(person.getImageUrl());
             entityManager.persist(person);
         } else {
-            Person personToUpdate = getPerson(person.getId());
+            Response personToUpdateResp = getPerson(person.getId());
+            Person personToUpdate = (Person) personToUpdateResp.getEntity();
             personToUpdate.setName(person.getName());
             personToUpdate.setDescription(person.getDescription());
             personToUpdate.setImageUrl(person.getImageUrl());
             person = entityManager.merge(personToUpdate);
         }
 
-        return person;
+        return Response.status(200).entity(person).build();
     }
 
     @DELETE
-    @Path("{id}")
-    public void deletePerson(@PathParam("id") Long id) {
-        entityManager.remove(getPerson(id));
+    @Path("/{id}")
+    @ApiOperation(value = "Delete a given person",
+            notes = "The server will delete the person of the given ID")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    public Response deletePerson(@PathParam("id") Long id) {
+        entityManager.remove(getPerson(id).getEntity());
+        return Response.status(200).build();
     }
 }
